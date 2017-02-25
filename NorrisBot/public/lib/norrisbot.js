@@ -51,5 +51,23 @@ NorrisBot.prototype._connectDb = function() {
   this.db = new SQLite.Database(this.dbPath);
 };
 
+NorrisBot.prototype._firstRunCheck = function() {
+  var self = this;
+  self.db.get('SELECT val FROM info WHERE name = "lastrun" LIMIT 1', function (err, record) {
+    if (err) {
+      return console.error('DATABASE ERROR: ', err);
+    }
 
+    var currentTime = (new Date()).toJSON();
+
+    // this is a first run
+    if (!record) {
+      self._welcomeMessage();
+      return self.db.run('INSERT INTO info(name, val) VALUES("lastrun", ?)', currentTime);
+    }
+
+    // updates with new last running time
+    self.db.run('UPDATE info SET val = ? WHERE name = "lastrun"', currentTime);
+  });
+};
 
