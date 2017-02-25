@@ -71,3 +71,8 @@ NorrisBot.prototype._firstRunCheck = function() {
   });
 };
 
+NorrisBot.prototype._welcomeMessage = function() {
+  this.postMessageToChannel(this.channels[0].name, 'Hi guys, roundhouse kick anyone?' + "\n I can tell jokes, but very honest ones.  Just say 'Chuck Norris' or " + this.name + " to invoke me!", {as_user: true});
+};
+
+
