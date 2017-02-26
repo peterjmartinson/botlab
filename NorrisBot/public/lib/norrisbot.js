@@ -19,6 +19,7 @@ var NorrisBot = function Constructor(settings) {
 // inherits methods and properties from the Bot constructor
 util.inherits(NorrisBot, Bot);
 
+// give it to Node!
 module.exports = NorrisBot;
 
 NorrisBot.prototype.run = function() {
@@ -74,5 +75,55 @@ NorrisBot.prototype._firstRunCheck = function() {
 NorrisBot.prototype._welcomeMessage = function() {
   this.postMessageToChannel(this.channels[0].name, 'Hi guys, roundhouse kick anyone?' + "\n I can tell jokes, but very honest ones.  Just say 'Chuck Norris' or " + this.name + " to invoke me!", {as_user: true});
 };
+
+
+// NorrisBot respond!
+NorrisBot.prototype._onMessage = function(message) {
+  if (this._isChatMessage(message) &&
+      this._isChannelConversation(message) &&
+      !this._isFromNorrisBot(message) &&
+      this._isMentioningChuckNorris(message)
+  ) {
+    this._replyWithRandomJoke(message);
+  }
+};
+
+NorrisBot.prototype._isChatMessage = function(message) {
+  return message.type === 'message' && Boolean(message.text);
+};
+
+NorrisBot.prototype._isChannelConversation = function(message) {
+  return typeof message.channel === 'string' &&
+         message.channel[0] === 'C'; // 'C' means Chat channel
+};
+
+NorrisBot.prototype._isFromNorrisBot = function(message) {
+  return message.user === this.user.id;
+};
+
+NorrisBot.prototype._isMentioningChuckNorris = function(message) {
+  return message.text.toLowerCase().indexOf('chuck norris') > -1 ||
+    message.text.toLowerCase().indexOf(this.name) > -1;
+};
+
+NorrisBot.prototype._replyWithRandomJoke = function (originalMessage) {
+    var self = this;
+    self.db.get('SELECT id, joke FROM jokes ORDER BY used ASC, RANDOM() LIMIT 1', function (err, record) {
+        if (err) {
+            return console.error('DATABASE ERROR:', err);
+        }
+
+        var channel = self._getChannelById(originalMessage.channel);
+        self.postMessageToChannel(channel.name, record.joke, {as_user: true});
+        self.db.run('UPDATE jokes SET used = used + 1 WHERE id = ?', record.id);
+    });
+};
+
+NorrisBot.prototype._getChannelById = function(channelId) {
+  return this.channels.filter(function (item) {
+    return item.id === channelId;
+  })[0];
+};
+
 
 
