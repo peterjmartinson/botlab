@@ -4,7 +4,7 @@ var util   = require('util');
 var path   = require('path');
 var fs     = require('fs');
 var SQLite = require('sqlite3').verbose();
-var Bot    = requre('slackbots');
+var Bot    = require('slackbots');
 
 var NorrisBot = function Constructor(settings) {
   this.setting       = settings;
@@ -45,7 +45,7 @@ NorrisBot.prototype._loadBotUser = function() {
 
 NorrisBot.prototype._connectDb = function() {
   if (!fs.existsSync(this.dbPath)) {
-    console.error('Database path ' + '"' + this.dbPath + '" does not exist or it\'s not readable."
+    console.error('Database path ' + '"' + this.dbPath + '" does not exists or it\'s not readable.');
     process.exit(1);
   }
 
